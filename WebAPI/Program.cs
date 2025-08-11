@@ -174,6 +174,9 @@ using (var scope = app.Services.CreateScope())
         // Migration'ları uygula
         await context.Database.MigrateAsync();
         
+        // HasShareholder kolonu kontrolü ve manuel ekleme
+        await EnsureHasShareholderColumnExists(context);
+        
         // Seed data'yı çalıştır (kullanıcılar ve örnek veriler)
         await SeedData.SeedAllAsync(userManager, roleManager, context);
         
@@ -226,6 +229,35 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = Dat
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.Run();
+
+/// <summary>
+/// HasShareholder kolonu yoksa Properties tablosuna ekler
+/// </summary>
+static async Task EnsureHasShareholderColumnExists(EmlakDbContext context)
+{
+    try
+    {
+        // Kolonu kontrol et ve gerekirse ekle
+        var sql = @"
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Properties') AND name = 'HasShareholder')
+            BEGIN
+                ALTER TABLE Properties ADD HasShareholder bit NOT NULL DEFAULT(0);
+                PRINT 'HasShareholder kolonu Properties tablosuna eklendi.';
+            END
+            ELSE
+            BEGIN
+                PRINT 'HasShareholder kolonu zaten mevcut.';
+            END
+        ";
+        
+        await context.Database.ExecuteSqlRawAsync(sql);
+    }
+    catch (Exception ex)
+    {
+        // Log the error but don't crash the application
+        Console.WriteLine($"HasShareholder kolonu ekleme hatası: {ex.Message}");
+    }
+}
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
