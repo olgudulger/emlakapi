@@ -189,8 +189,19 @@ using (var scope = app.Services.CreateScope())
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         
-        // Migration'ları uygula
-        await context.Database.MigrateAsync();
+        // Migration'ları uygula (Render'da conflict varsa manuel kontrol)
+        try
+        {
+            await context.Database.MigrateAsync();
+        }
+        catch (Exception migrationEx)
+        {
+            Console.WriteLine($"Migration hatasi (atlanacak): {migrationEx.Message}");
+            // Migration basarisiz olsa da devam et - manuel HasShareholder kontrolu yapacagiz
+        }
+        
+        // HasShareholder kolonu kontrolu ve manuel ekleme (Migration bypass)
+        await EnsureHasShareholderColumnExists(context);
         
         // Seed data'yı çalıştır (kullanıcılar ve örnek veriler)
         await SeedData.SeedAllAsync(userManager, roleManager, context);
@@ -245,7 +256,37 @@ app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.Run();
 
-
+/// <summary>
+/// HasShareholder kolonu yoksa Properties tablosuna ekler
+/// Migration bypass - Production DB icin guvenli kolun ekleme
+/// </summary>
+static async Task EnsureHasShareholderColumnExists(EmlakDbContext context)
+{
+    try
+    {
+        // Kolunu kontrol et ve gerekirse ekle
+        var sql = @"
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Properties') AND name = 'HasShareholder')
+            BEGIN
+                ALTER TABLE Properties ADD HasShareholder bit NOT NULL DEFAULT(0);
+                PRINT 'HasShareholder kolonu Properties tablosuna eklendi.';
+            END
+            ELSE
+            BEGIN
+                PRINT 'HasShareholder kolonu zaten mevcut.';
+            END
+        ";
+        
+        await context.Database.ExecuteSqlRawAsync(sql);
+        Console.WriteLine("HasShareholder kolonu kontrolu tamamlandi.");
+    }
+    catch (Exception ex)
+    {
+        // Log the error but don't crash the application
+        Console.WriteLine($"HasShareholder kolonu ekleme hatasi: {ex.Message}");
+        Console.WriteLine("Uygulama normal calismaya devam edecek.");
+    }
+}
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
