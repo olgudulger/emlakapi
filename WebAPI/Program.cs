@@ -171,8 +171,8 @@ using (var scope = app.Services.CreateScope())
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         
-        // Veritabanını oluştur
-        await context.Database.EnsureCreatedAsync();
+        // Migration'ları uygula
+        await context.Database.MigrateAsync();
         
         // Seed data'yı çalıştır (kullanıcılar ve örnek veriler)
         await SeedData.SeedAllAsync(userManager, roleManager, context);
