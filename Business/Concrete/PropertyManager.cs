@@ -194,9 +194,9 @@ public class PropertyManager : IPropertyService
             field.RoadStatus = GetStringValue(roadStatus);
         if (properties.TryGetValue("FieldType", out var fieldType))
             field.FieldType = (FieldType)GetIntValue(fieldType);
-        // HasShareholder değerini FieldProperty model'ine map et (HeatingType gibi)
-        if (properties.TryGetValue("HasShareholder", out var hasShareholder))
-            field.HasShareholder = GetBoolValue(hasShareholder);
+        // TEMP: HasShareholder migration sorunu çözülene kadar kapalı
+        // if (properties.TryGetValue("HasShareholder", out var hasShareholder))
+        //     field.HasShareholder = GetBoolValue(hasShareholder);
     }
 
     private void MapLandProperties(LandProperty land, Dictionary<string, object> properties)
