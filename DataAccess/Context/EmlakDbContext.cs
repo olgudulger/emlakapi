@@ -46,6 +46,11 @@ namespace DataAccess.Context
                 .HasValue<ApartmentProperty>(PropertyType.Apartment)
                 .HasValue<SharedParcelProperty>(PropertyType.SharedParcel);
 
+            // FieldProperty için HasShareholder default değeri
+            modelBuilder.Entity<FieldProperty>()
+                .Property(f => f.HasShareholder)
+                .HasDefaultValue(false);
+
             // Customer ile Property ilişkisi
             modelBuilder.Entity<Property>()
                 .HasOne(p => p.Customer)
