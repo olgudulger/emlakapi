@@ -37,8 +37,8 @@ public class SaleManager : ISaleService
         if (!canSell)
         {
             // Detaylı sebep kontrolü için
-            var property = await _unitOfWork.Properties.GetByIdAsync(saleCreateDto.PropertyId);
-            if (property?.Status == PropertyStatus.Satildi || property?.Status == PropertyStatus.Kiralandi)
+            var checkProperty = await _unitOfWork.Properties.GetByIdAsync(saleCreateDto.PropertyId);
+            if (checkProperty?.Status == PropertyStatus.Satildi || checkProperty?.Status == PropertyStatus.Kiralandi)
             {
                 throw new InvalidOperationException("Bu emlak zaten satılmış veya kiralanmış durumda.");
             }
