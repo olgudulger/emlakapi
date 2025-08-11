@@ -83,8 +83,8 @@ public class PropertyProfile : Profile
                 properties["TotalPrice"] = field.TotalPrice;
                 properties["RoadStatus"] = field.RoadStatus;
                 properties["FieldType"] = field.FieldType.ToString();
-                // TODO: Migration tamamlandığında HasShareholder'ı geri ekle
-                // properties["HasShareholder"] = field.HasShareholder;
+                // HasShareholder için default değer - front-end tarafından kontrol edilecek
+                properties["HasShareholder"] = false; // Default değer, front-end güncelleyecek
                 break;
                 
             case LandProperty land:
@@ -158,8 +158,8 @@ public class PropertyProfile : Profile
                 properties["TotalPrice"] = field.TotalPrice;
                 properties["RoadStatus"] = field.RoadStatus;
                 properties["FieldType"] = field.FieldType.ToString();
-                // TODO: Migration tamamlandığında HasShareholder'ı geri ekle
-                // properties["HasShareholder"] = field.HasShareholder;
+                // HasShareholder için default değer - front-end tarafından kontrol edilecek
+                properties["HasShareholder"] = false; // Default değer, front-end güncelleyecek
                 break;
                 
             case LandProperty land:

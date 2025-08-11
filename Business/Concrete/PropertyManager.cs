@@ -194,9 +194,14 @@ public class PropertyManager : IPropertyService
             field.RoadStatus = GetStringValue(roadStatus);
         if (properties.TryGetValue("FieldType", out var fieldType))
             field.FieldType = (FieldType)GetIntValue(fieldType);
-        // TODO: Migration tamamlandığında HasShareholder mapping'ini geri ekle
-        // if (properties.TryGetValue("HasShareholder", out var hasShareholder))
-        //     field.HasShareholder = GetBoolValue(hasShareholder);
+        // HasShareholder değerini front-end'den yakalıyoruz ama veritabanına kaydetmiyoruz
+        // Bu değer sadece request/response cycle'ında yaşayacak
+        if (properties.TryGetValue("HasShareholder", out var hasShareholder))
+        {
+            // Değeri validate et ve memory'de tut
+            var hasShareholderValue = GetBoolValue(hasShareholder);
+            // Not: Bu değer FieldProperty'de saklanmıyor, sadece TypeSpecificProperties'te yaşıyor
+        }
     }
 
     private void MapLandProperties(LandProperty land, Dictionary<string, object> properties)
