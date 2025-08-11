@@ -18,11 +18,9 @@ public class PropertyUpdateDto
     [Required(ErrorMessage = "Mahalle gereklidir")]
     public int NeighborhoodId { get; set; }
 
-    [Required(ErrorMessage = "Aracı adı gereklidir")]
     [StringLength(100, ErrorMessage = "Aracı adı en fazla 100 karakter olabilir")]
     public string IntermediaryFullName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Aracı telefonu gereklidir")]
     [Phone(ErrorMessage = "Geçerli bir telefon numarası giriniz")]
     public string IntermediaryPhone { get; set; } = string.Empty;
 
