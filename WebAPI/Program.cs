@@ -98,9 +98,27 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Database Configuration
+// Database Configuration - Environment Based Connection String Selection
+var useLocalDatabase = builder.Configuration.GetValue<bool>("DatabaseSettings:UseLocalDatabase");
+string connectionString;
+
+if (useLocalDatabase)
+{
+    // Local Database kullan
+    connectionString = builder.Configuration.GetValue<string>("DatabaseSettings:LocalConnection") 
+                      ?? throw new InvalidOperationException("Local connection string is not configured");
+    Console.WriteLine("🔧 LOCAL DATABASE kullanılıyor: " + connectionString.Substring(0, Math.Min(30, connectionString.Length)) + "...");
+}
+else
+{
+    // Production Database kullan
+    connectionString = builder.Configuration.GetValue<string>("DatabaseSettings:ProductionConnection") 
+                      ?? throw new InvalidOperationException("Production connection string is not configured");
+    Console.WriteLine("🚀 PRODUCTION DATABASE kullanılıyor: " + connectionString.Substring(0, Math.Min(30, connectionString.Length)) + "...");
+}
+
 builder.Services.AddDbContext<EmlakDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // Identity Configuration
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
