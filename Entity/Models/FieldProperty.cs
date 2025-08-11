@@ -16,6 +16,7 @@ public class FieldProperty : Property
     // FieldProperty specific properties
     public string RoadStatus { get; set; } = string.Empty;
     public FieldType FieldType { get; set; } = FieldType.Belirsiz;
-    public bool HasShareholder { get; set; } = false;
+    // TODO: Migration tamamlandığında geri ekle
+    // public bool HasShareholder { get; set; } = false;
 
 }

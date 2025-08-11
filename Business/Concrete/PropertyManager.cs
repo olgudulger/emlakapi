@@ -194,19 +194,9 @@ public class PropertyManager : IPropertyService
             field.RoadStatus = GetStringValue(roadStatus);
         if (properties.TryGetValue("FieldType", out var fieldType))
             field.FieldType = (FieldType)GetIntValue(fieldType);
-        // HasShareholder alanını güvenli şekilde set et (migration henüz uygulanmamış olabilir)
-        if (properties.TryGetValue("HasShareholder", out var hasShareholder))
-        {
-            try
-            {
-                field.HasShareholder = GetBoolValue(hasShareholder);
-            }
-            catch
-            {
-                // Migration henüz uygulanmamışsa default değer kullan
-                field.HasShareholder = false;
-            }
-        }
+        // TODO: Migration tamamlandığında HasShareholder mapping'ini geri ekle
+        // if (properties.TryGetValue("HasShareholder", out var hasShareholder))
+        //     field.HasShareholder = GetBoolValue(hasShareholder);
     }
 
     private void MapLandProperties(LandProperty land, Dictionary<string, object> properties)
