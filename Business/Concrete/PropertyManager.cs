@@ -194,14 +194,9 @@ public class PropertyManager : IPropertyService
             field.RoadStatus = GetStringValue(roadStatus);
         if (properties.TryGetValue("FieldType", out var fieldType))
             field.FieldType = (FieldType)GetIntValue(fieldType);
-        // HasShareholder değerini front-end'den yakalıyoruz ama veritabanına kaydetmiyoruz
-        // Bu değer sadece request/response cycle'ında yaşayacak
+        // HasShareholder değerini FieldProperty model'ine map et (HeatingType gibi)
         if (properties.TryGetValue("HasShareholder", out var hasShareholder))
-        {
-            // Değeri validate et ve memory'de tut
-            var hasShareholderValue = GetBoolValue(hasShareholder);
-            // Not: Bu değer FieldProperty'de saklanmıyor, sadece TypeSpecificProperties'te yaşıyor
-        }
+            field.HasShareholder = GetBoolValue(hasShareholder);
     }
 
     private void MapLandProperties(LandProperty land, Dictionary<string, object> properties)

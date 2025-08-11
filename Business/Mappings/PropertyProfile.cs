@@ -83,8 +83,7 @@ public class PropertyProfile : Profile
                 properties["TotalPrice"] = field.TotalPrice;
                 properties["RoadStatus"] = field.RoadStatus;
                 properties["FieldType"] = field.FieldType.ToString();
-                // HasShareholder için default değer - front-end tarafından kontrol edilecek
-                properties["HasShareholder"] = false; // Default değer, front-end güncelleyecek
+                properties["HasShareholder"] = field.HasShareholder; // Model'den oku (HeatingType gibi)
                 break;
                 
             case LandProperty land:
@@ -158,8 +157,7 @@ public class PropertyProfile : Profile
                 properties["TotalPrice"] = field.TotalPrice;
                 properties["RoadStatus"] = field.RoadStatus;
                 properties["FieldType"] = field.FieldType.ToString();
-                // HasShareholder için default değer - front-end tarafından kontrol edilecek
-                properties["HasShareholder"] = false; // Default değer, front-end güncelleyecek
+                properties["HasShareholder"] = field.HasShareholder; // Model'den oku (HeatingType gibi)
                 break;
                 
             case LandProperty land:
