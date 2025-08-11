@@ -14,7 +14,7 @@ public class PropertyDetailDto
     public int DistrictId { get; set; }
     public int NeighborhoodId { get; set; }
     public string IntermediaryFullName { get; set; } = string.Empty;
-    public string IntermediaryPhone { get; set; } = string.Empty;
+    public string? IntermediaryPhone { get; set; }
     public PropertyStatus Status { get; set; }
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }

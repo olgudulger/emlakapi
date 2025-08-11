@@ -194,6 +194,8 @@ public class PropertyManager : IPropertyService
             field.RoadStatus = GetStringValue(roadStatus);
         if (properties.TryGetValue("FieldType", out var fieldType))
             field.FieldType = (FieldType)GetIntValue(fieldType);
+        if (properties.TryGetValue("HasShareholder", out var hasShareholder))
+            field.HasShareholder = GetBoolValue(hasShareholder);
     }
 
     private void MapLandProperties(LandProperty land, Dictionary<string, object> properties)
@@ -327,6 +329,24 @@ public class PropertyManager : IPropertyService
         if (value is string strValue && float.TryParse(strValue, out float parsedValue)) return parsedValue;
         
         return Convert.ToSingle(value);
+    }
+
+    private bool GetBoolValue(object value)
+    {
+        if (value is JsonElement jsonElement)
+        {
+            if (jsonElement.ValueKind == JsonValueKind.True) return true;
+            if (jsonElement.ValueKind == JsonValueKind.False) return false;
+            if (jsonElement.ValueKind == JsonValueKind.String && bool.TryParse(jsonElement.GetString(), out bool result))
+            {
+                return result;
+            }
+        }
+        
+        if (value is bool boolValue) return boolValue;
+        if (value is string strValue && bool.TryParse(strValue, out bool parsedValue)) return parsedValue;
+        
+        return Convert.ToBoolean(value);
     }
 
     public async Task<PropertyDetailDto?> UpdateAsync(int id, PropertyUpdateDto propertyUpdateDto)
