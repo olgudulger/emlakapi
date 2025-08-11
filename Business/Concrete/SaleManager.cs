@@ -36,6 +36,20 @@ public class SaleManager : ISaleService
         var canSell = await CanSellPropertyAsync(saleCreateDto.PropertyId);
         if (!canSell)
         {
+            // Detaylı sebep kontrolü için
+            var property = await _unitOfWork.Properties.GetByIdAsync(saleCreateDto.PropertyId);
+            if (property?.Status == PropertyStatus.Satildi || property?.Status == PropertyStatus.Kiralandi)
+            {
+                throw new InvalidOperationException("Bu emlak zaten satılmış veya kiralanmış durumda.");
+            }
+            
+            var existingSales = await _unitOfWork.Sales.GetSalesByPropertyAsync(saleCreateDto.PropertyId);
+            var activeSales = existingSales.Where(s => s.Status == SaleStatus.Pending || s.Status == SaleStatus.Postponed).ToList();
+            if (activeSales.Any())
+            {
+                throw new InvalidOperationException("Bu emlak için zaten aktif bir satış işlemi bulunmaktadır.");
+            }
+            
             throw new InvalidOperationException("Bu emlak şu anda satılamaz.");
         }
 
@@ -207,10 +221,19 @@ public class SaleManager : ISaleService
         if (property == null) return false;
 
         // Emlak mevcut ve satışa uygun durumda mı?
-        return property.Status == PropertyStatus.Satilik ||      // Satılık
-               property.Status == PropertyStatus.SatilikKiralik || // Satılık & Kiralık
-               property.Status == PropertyStatus.Kiralik ||       // Kiralık (kiralama için)
-               property.Status == PropertyStatus.Rezerv;           // Rezerv
+        var propertyStatusOk = property.Status == PropertyStatus.Satilik ||      // Satılık
+                              property.Status == PropertyStatus.SatilikKiralik || // Satılık & Kiralık
+                              property.Status == PropertyStatus.Kiralik ||       // Kiralık (kiralama için)
+                              property.Status == PropertyStatus.Rezerv;           // Rezerv
+        
+        if (!propertyStatusOk) return false;
+        
+        // Aynı emlak için aktif/beklemede olan satış var mı kontrol et
+        var existingSales = await _unitOfWork.Sales.GetSalesByPropertyAsync(propertyId);
+        var activeSales = existingSales.Where(s => s.Status == SaleStatus.Pending || s.Status == SaleStatus.Postponed).ToList();
+        
+        // Aktif satış yoksa satılabilir
+        return !activeSales.Any();
     }
 
     public async Task<decimal> CalculateCommissionAsync(decimal salePrice, decimal commissionRate)
@@ -239,9 +262,10 @@ public class SaleManager : ISaleService
         if (property == null) return false;
 
         var completedSales = sales.Where(s => s.Status == SaleStatus.Completed).ToList();
-        var incompletedSales = sales.Where(s => s.Status != SaleStatus.Completed).ToList();
+        var activeSales = sales.Where(s => s.Status == SaleStatus.Pending || s.Status == SaleStatus.Postponed).ToList();
+        var cancelledSales = sales.Where(s => s.Status == SaleStatus.Cancelled).ToList();
 
-        if (completedSales.Count > 0 && incompletedSales.Count == 0)
+        if (completedSales.Count > 0 && activeSales.Count == 0)
         {
             // Emlak durumuna göre tamamlanan satış sonrası status belirleme
             if (property.Status == PropertyStatus.Kiralik || property.Status == PropertyStatus.SatilikKiralik)
@@ -257,7 +281,7 @@ public class SaleManager : ISaleService
             property.UpdatedAt = DateTime.UtcNow;
             return true;
         }
-        else if (completedSales.Count == 0 && incompletedSales.Count > 0)
+        else if (completedSales.Count == 0 && activeSales.Count > 0)
         {
             // Completed satış yoksa, emlak orijinal durumuna geri döner
             // Kiralandi -> Kiralik, Satildi -> Satilik
@@ -272,9 +296,24 @@ public class SaleManager : ISaleService
             property.UpdatedAt = DateTime.UtcNow;
             return true;
         }
+        else if (completedSales.Count == 0 && activeSales.Count == 0)
+        {
+            // Hiçbir aktif satış yok (sadece cancelled satışlar var veya hiç satış yok)
+            // Emlak orijinal satılık durumuna döner
+            if (property.Status == PropertyStatus.Kiralandi)
+            {
+                property.Status = PropertyStatus.Kiralik;
+            }
+            else if (property.Status == PropertyStatus.Satildi)
+            {
+                property.Status = PropertyStatus.Satilik;
+            }
+            property.UpdatedAt = DateTime.UtcNow;
+            return true;
+        }
         else
         {
-            // Karışık durum - varsayılan duruma döner
+            // Karışık durum (hem completed hem de active satışlar var) - varsayılan duruma döner
             if (property.Status == PropertyStatus.Kiralandi)
             {
                 property.Status = PropertyStatus.Kiralik;
