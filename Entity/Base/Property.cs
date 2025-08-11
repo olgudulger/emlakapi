@@ -16,7 +16,7 @@ public abstract class Property: BaseEntity
     public int NeighborhoodId { get; set; }
 
     public string IntermediaryFullName { get; set; } = string.Empty;
-    public string IntermediaryPhone { get; set; } = string.Empty;
+    public string? IntermediaryPhone { get; set; }
     public PropertyStatus Status { get; set; } = PropertyStatus.Satilik;
 
     public string? Notes { get; set; }

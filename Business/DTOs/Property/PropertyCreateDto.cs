@@ -24,8 +24,7 @@ public class PropertyCreateDto
     [StringLength(100, ErrorMessage = "Aracı adı en fazla 100 karakter olabilir")]
     public string IntermediaryFullName { get; set; } = string.Empty;
 
-    [Phone(ErrorMessage = "Geçerli bir telefon numarası giriniz")]
-    public string IntermediaryPhone { get; set; } = string.Empty;
+    public string? IntermediaryPhone { get; set; }
 
     public PropertyStatus Status { get; set; } = PropertyStatus.Satilik;
 

@@ -90,40 +90,8 @@ namespace DataAccess.Concrete
 
         public static async Task SeedSampleDataAsync(EmlakDbContext context)
         {
-            // Örnek müşteri oluştur (eğer yoksa)
-            if (!await context.Customers.AnyAsync())
-            {
-                // SeedData'da bulunan iller: Çanakkale, Edirne, Kırklareli, Tekirdağ
-                var canakkale = await context.Provinces.FirstOrDefaultAsync(p => p.Name == "Çanakkale");
-                if (canakkale != null)
-                {
-                    var customer = new Customer
-                    {
-                        FullName = "Ahmet Yılmaz",
-                        Phone = "05551234567",
-                        Budget = 5000000,
-                        InterestType = InterestType.Arsa,
-
-                        Notes = "İlk örnek müşteri",
-                        ProvincePreferences = new List<CustomerProvincePreference>()
-                    };
-
-                    context.Customers.Add(customer);
-                    await context.SaveChangesAsync();
-
-                    // Müşteri oluştuktan sonra province preference ekle
-                    var provincePreference = new CustomerProvincePreference
-                    {
-                        CustomerId = customer.Id,
-                        Customer = customer,
-                        ProvinceId = canakkale.Id,
-                        Province = canakkale
-                    };
-
-                    context.CustomerProvincePreferences.Add(provincePreference);
-                    await context.SaveChangesAsync();
-                }
-            }
+            // Örnek veriler için boş metod - gerektiğinde buraya eklenebilir
+            await Task.CompletedTask;
         }
 
         public static void SeedInitialData(ModelBuilder modelBuilder)
