@@ -194,9 +194,8 @@ public class PropertyManager : IPropertyService
             field.RoadStatus = GetStringValue(roadStatus);
         if (properties.TryGetValue("FieldType", out var fieldType))
             field.FieldType = (FieldType)GetIntValue(fieldType);
-        // TEMP: HasShareholder model'de yok, mapping kapalı
-        // if (properties.TryGetValue("HasShareholder", out var hasShareholder))
-        //     field.HasShareholder = GetBoolValue(hasShareholder);
+        if (properties.TryGetValue("HasShareholder", out var hasShareholder))
+            field.HasShareholder = GetBoolValue(hasShareholder);
     }
 
     private void MapLandProperties(LandProperty land, Dictionary<string, object> properties)
